@@ -11,7 +11,7 @@ const userSchema = new mongoose.Schema({
         unique: true
     },
     mobile_number: {
-        type: Number,
+        type: String,
         required: true,
         unique: true
     },
@@ -26,6 +26,7 @@ const userSchema = new mongoose.Schema({
     },
     isVerified: {
         type: Boolean,
+        default: false
     }
 });
 
