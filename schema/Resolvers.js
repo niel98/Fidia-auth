@@ -9,7 +9,6 @@ const resolvers = {
     Query: {
         getUsers: async () => {
             const users = await User.find();
-            console.log('Users: ', users);
             return users;
         },
 
