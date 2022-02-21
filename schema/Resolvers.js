@@ -11,7 +11,28 @@ const resolvers = {
             const users = await User.find();
             console.log('Users: ', users);
             return users;
-        }
+        },
+
+        verifyAccount: async (_, args) => {
+            let token = await Token.findOne({ token: token}); //req.params.token
+            if (!token) {
+                throw new UserInputError('your verification link may have expired. Please click on resend to get a new one');
+            }
+            //If token is found, check for a valid user
+            let user = await User.findOne({ email: email }); //req.params.email
+            if (!user) {
+                throw new UserInputError('User does not exist. Sign up to create a new user');
+            }
+            if (user.isVerified) {
+                throw new UserInputError('User is already verified, proceed to sign in.');
+            }
+
+            //Verify user
+            user.isVerified = true;
+            await user.save();
+
+            return user;
+        },
     },
 
     Mutation: {
@@ -45,11 +66,11 @@ const resolvers = {
             if (!token) {
                 token = await new Token({
                     userId: user._id,
-                    token: crypto.randomBytes(32).toString('hex')
+                    token: crypto.randomBytes(16).toString('hex')
                 }).save();
             }
 
-            const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${token.token}`;
+            const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${email}/${token.token}`;
             await sendMail(email, 'Account Verification', message);
 
             return user;
@@ -84,6 +105,27 @@ const resolvers = {
                 token,
                 user: user
             }
+        },
+
+        resendVerificationLink: async (_, args) => {
+            const { email } = args;
+            const user = await User.findOne({ email: email });
+            if (!user) {
+                throw new UserInputError('User does not exist!');
+            }
+            if (user.isVerified) {
+                throw new UserInputError('User is already verified, proceed to sign in');
+            }
+
+            let token = await new Token({
+                userId: user._id,
+                token: crypto.randomBytes(16).toString('hex')
+            }).save()
+
+            const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${email}/${token.token}`;
+            await sendMail(email, 'Account Verification', message);
+
+            return user;
         }
     }
 }
