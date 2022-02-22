@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require('dotenv').config()
 
-const sendEmail = async (email, subject, text) => {
+const sendEmail = async (email, subject, html) => {
     try {
   
     // create reusable transporter object using the default SMTP transport
@@ -20,7 +20,8 @@ const sendEmail = async (email, subject, text) => {
         from: 'Fidia', // sender address
         to: email, // list of receivers
         subject: subject, // Subject line
-        text: text, // plain text body
+        // text: text, // plain text body
+        html: html
       });
     
       console.log("Message sent: %s", info.messageId);

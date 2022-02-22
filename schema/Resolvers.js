@@ -2,8 +2,8 @@ const User = require('../models/User');
 const Token = require('../models/Token');
 const crypto = require('crypto');
 const argon2 = require('argon2');
+const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/sendmail');
-const { UserInputError } = require('apollo-server-express');
 
 const resolvers = {
     Query: {
@@ -12,21 +12,28 @@ const resolvers = {
             return users;
         },
 
-        verifyAccount: async (_, args) => {
-            let token = await Token.findOne({ token: token}); //req.params.token
-            if (!token) {
-                throw new UserInputError('your verification link may have expired. Please click on resend to get a new one');
+        verifyAccount: async (root, _, __) => {
+            console.log({ root });
+            const email = root.params.email
+            let authToken = root.params.token;
+            if (!authToken) {
+                throw new Error('please pass the authorization token');
             }
-            //If token is found, check for a valid user
+            console.log('Auth token: ', authToken);
+            let token = await Token.findOne({ token: authToken}); //req.params.token
+            if (!token) {
+                throw new Error('your verification link may have expired. Please click on resend to get a new one');
+            }
+            // //If token is found, check for a valid user
             let user = await User.findOne({ email: email }); //req.params.email
             if (!user) {
-                throw new UserInputError('User does not exist. Sign up to create a new user');
+                throw new Error('User does not exist. Sign up to create a new user');
             }
             if (user.isVerified) {
-                throw new UserInputError('User is already verified, proceed to sign in.');
+                throw new Error('User is already verified, proceed to sign in.');
             }
 
-            //Verify user
+            // //Verify user
             user.isVerified = true;
             await user.save();
 
@@ -45,10 +52,10 @@ const resolvers = {
             console.log('phone exists? ', phone);
 
             if (user) {
-                throw new UserInputError('User with the email already exists!');
+                throw new Error('User with the email already exists!');
             }
             if (phone) {
-                throw new UserInputError('User with the phone number already exists!');
+                throw new Error('User with the phone number already exists!');
             }
 
             const hashedPassword = await argon2.hash(password);
@@ -69,8 +76,9 @@ const resolvers = {
                 }).save();
             }
 
-            const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${email}/${token.token}`;
-            await sendMail(email, 'Account Verification', message);
+            // const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${email}/${token.token}`;
+            const html = `<p>Welcome to Fidia, verify your account by clicking on the button</p> <a href="${process.env.BASE_URL}/${email}/${token.token}"><button>Verify Email</button></a>`;
+            await sendMail(email, 'Account Verification', html);
 
             return user;
         },
@@ -82,19 +90,19 @@ const resolvers = {
             const user = await User.findOne({ email: email});
 
             if (!user) {
-                throw new UserInputError('Invalid User');
+                throw new Error('Invalid User');
             }
 
             //Validate password
             const validPassword = await argon2.verify(user.password, password);
 
             if (!validPassword) {
-                throw new UserInputError('Invalid login credentials');
+                throw new Error('Invalid login credentials');
             }
 
             //Check if the user has verified account
             if (!user.isVerified) {
-                throw new UserInputError('Account not verified!');
+                throw new Error('Account not verified!');
             }
 
             //Generate token
@@ -110,10 +118,10 @@ const resolvers = {
             const { email } = args;
             const user = await User.findOne({ email: email });
             if (!user) {
-                throw new UserInputError('User does not exist!');
+                throw new Error('User does not exist!');
             }
             if (user.isVerified) {
-                throw new UserInputError('User is already verified, proceed to sign in');
+                throw new Error('User is already verified, proceed to sign in');
             }
 
             let token = await new Token({
@@ -121,8 +129,8 @@ const resolvers = {
                 token: crypto.randomBytes(16).toString('hex')
             }).save()
 
-            const message = `Welcome to Fidia, verify your account by clicking on the url ${process.env.BASE_URL}/${email}/${token.token}`;
-            await sendMail(email, 'Account Verification', message);
+            const html = `<p>Welcome to Fidia, verify your account by clicking on the button</p> <a href="${process.env.BASE_URL}/${email}/${token.token}"><button>Verify Email</button></a>`;
+            await sendMail(email, 'Account Verification', html);
 
             return user;
         }
