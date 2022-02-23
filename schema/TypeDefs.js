@@ -27,8 +27,6 @@ const typeDefs = gql`
     #Queries
     type Query {
             getUsers: [User!]!
-
-            verifyAccount: User!
         }
 
     #Mutations
@@ -49,6 +47,8 @@ const typeDefs = gql`
         resendVerificationLink(
             email: String!
         ): User!
+
+        verifyAccount: User!
     }
 
 `

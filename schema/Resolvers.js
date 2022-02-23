@@ -11,34 +11,6 @@ const resolvers = {
             const users = await User.find();
             return users;
         },
-
-        verifyAccount: async (root, _, __) => {
-            console.log({ root });
-            const email = root.params.email
-            let authToken = root.params.token;
-            if (!authToken) {
-                throw new Error('please pass the authorization token');
-            }
-            console.log('Auth token: ', authToken);
-            let token = await Token.findOne({ token: authToken}); //req.params.token
-            if (!token) {
-                throw new Error('your verification link may have expired. Please click on resend to get a new one');
-            }
-            // //If token is found, check for a valid user
-            let user = await User.findOne({ email: email }); //req.params.email
-            if (!user) {
-                throw new Error('User does not exist. Sign up to create a new user');
-            }
-            if (user.isVerified) {
-                throw new Error('User is already verified, proceed to sign in.');
-            }
-
-            // //Verify user
-            user.isVerified = true;
-            await user.save();
-
-            return user;
-        },
     },
 
     Mutation: {
@@ -133,7 +105,35 @@ const resolvers = {
             await sendMail(email, 'Account Verification', html);
 
             return user;
-        }
+        },
+
+        verifyAccount: async (root, _, __) => {
+            console.log({ root });
+            const email = root.params.email
+            let authToken = root.params.token;
+            if (!authToken) {
+                throw new Error('please pass the authorization token');
+            }
+            console.log('Auth token: ', authToken);
+            let token = await Token.findOne({ token: authToken}); //req.params.token
+            if (!token) {
+                throw new Error('your verification link may have expired. Please click on resend to get a new one');
+            }
+            // //If token is found, check for a valid user
+            let user = await User.findOne({ email: email }); //req.params.email
+            if (!user) {
+                throw new Error('User does not exist. Sign up to create a new user');
+            }
+            if (user.isVerified) {
+                throw new Error('User is already verified, proceed to sign in.');
+            }
+
+            // //Verify user
+            user.isVerified = true;
+            await user.save();
+
+            return user;
+        },
     }
 }
 

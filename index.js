@@ -31,7 +31,7 @@ const main = async () => {
         res.send('Hello from Fidia server');
     });
 
-    app.get('/verify/:email/:token', resolvers.Query.verifyAccount);
+    app.get('/verify/:email/:token', resolvers.Mutation.verifyAccount);
 
     app.listen(PORT, () => {
         console.log(`Server is running on ${PORT}`.italic.blue);
