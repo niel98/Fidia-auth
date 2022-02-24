@@ -5,6 +5,10 @@ const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/sendmail');
 
+const { verifyEmail } = require('../functions/verifyEmail');
+
+const express = require('express');
+
 const resolvers = {
     Query: {
         getUsers: async () => {
@@ -107,8 +111,10 @@ const resolvers = {
             return user;
         },
 
-        verifyAccount: async (root, _, __) => {
-            console.log({ root });
+        verifyAccount: async (root, args, context) => {
+            console.log('root => ', root);
+            console.log('args =>', args);
+            console.log({root, args, context})
             const email = root.params.email
             let authToken = root.params.token;
             if (!authToken) {

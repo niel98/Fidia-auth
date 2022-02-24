@@ -11,17 +11,20 @@ const main = async () => {
 
     const app = express();
 
-    // const httpServer = http.createServer(app);
-
     const server = new ApolloServer({ 
         typeDefs, 
-        resolvers
+        resolvers,
+        context: ({ req, res }) => {
+            return {
+                req,
+                res
+            }
+        }
         }
     );
-        // console.log({ server })
+
     await server.start();
     server.applyMiddleware({ app });
-    // await new Promise(resolve => httpServer.listen({port: 8000}, resolve));
 
     connectDB();
 
