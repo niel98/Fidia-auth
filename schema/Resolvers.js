@@ -4,10 +4,7 @@ const crypto = require('crypto');
 const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/sendmail');
-
-const { verifyEmail } = require('../functions/verifyEmail');
-
-const express = require('express');
+const sendResponse = require('../utils/sendResponse');
 
 const resolvers = {
     Query: {
@@ -111,35 +108,34 @@ const resolvers = {
             return user;
         },
 
-        verifyAccount: async (root, args, context) => {
-            console.log('root => ', root);
-            console.log('args =>', args);
-            console.log({root, args, context})
-            const email = root.params.email
-            let authToken = root.params.token;
-            if (!authToken) {
-                throw new Error('please pass the authorization token');
-            }
-            console.log('Auth token: ', authToken);
-            let token = await Token.findOne({ token: authToken}); //req.params.token
-            if (!token) {
-                throw new Error('your verification link may have expired. Please click on resend to get a new one');
-            }
-            // //If token is found, check for a valid user
-            let user = await User.findOne({ email: email }); //req.params.email
-            if (!user) {
-                throw new Error('User does not exist. Sign up to create a new user');
-            }
-            if (user.isVerified) {
-                throw new Error('User is already verified, proceed to sign in.');
-            }
+        // verifyAccount: async (root, args, context) => {
+        //     const email = root.params.email
+        //     let authToken = root.params.token;
+        //     if (!authToken) {
+        //         throw new Error('please pass the authorization token');
+        //     }
+        //     console.log('Auth token: ', authToken);
+        //     let token = await Token.findOne({ token: authToken}); //req.params.token
+        //     if (!token) {
+        //         // throw new Error('your verification link may have expired. Please click on resend to get a new one');
+        //         return sendResponse();
+        //     }
+        //     // //If token is found, check for a valid user
+        //     let user = await User.findOne({ email: email }); //req.params.email
+        //     if (!user) {
+        //         throw new Error('User does not exist. Sign up to create a new user');
+        //     }
+        //     if (user.isVerified) {
+        //         // throw new Error('User is already verified, proceed to sign in.');
+        //         return sendResponse();
+        //     }
 
-            // //Verify user
-            user.isVerified = true;
-            await user.save();
+        //     // //Verify user
+        //     user.isVerified = true;
+        //     await user.save();
 
-            return user;
-        },
+        //     return sendResponse();
+        // },
     }
 }
 

@@ -48,7 +48,7 @@ const typeDefs = gql`
             email: String!
         ): User!
 
-        verifyAccount: User!
+        # verifyAccount: User!
     }
 
 `
