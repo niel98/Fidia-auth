@@ -4,7 +4,6 @@ const crypto = require('crypto');
 const argon2 = require('argon2');
 const jwt = require('jsonwebtoken');
 const sendMail = require('../utils/sendmail');
-const sendResponse = require('../utils/sendResponse');
 
 const resolvers = {
     Query: {

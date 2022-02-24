@@ -1,30 +1,69 @@
-const chai = require('chai');
-const expect = chai.expect;
-const url = `http://localhost:8000/`;
-const request = require('supertest')(url);
+const { chai, expect } = require('chai');
+const { describe, it } = require('mocha');
+const EasyGraphQLTester = require('easygraphql-tester');
+const User = require('../models/User');
+const { typeDefs } = require('../schema/TypeDefs');
+const { resolvers } = require('../schema/Resolvers');
 
-// let args;
+let tester;
 
-// beforeEach(() => {
-//     const { name, email, mobile_number, password, country } = args
-// })
+beforeEach(() => {
+    tester = new EasyGraphQLTester(typeDefs, resolvers);
+})
+
 
 describe('User Tests', () => {
     // Test signUp mutation works (Creates a user)
-    // it ('signs up a user', async () => {
-    //     assert.ok();
-    // })
+    it ('signUp mutation adds new user to Database', async () => {
+        const mutation = `
+                mutation signUp(
+                    name: String!, 
+                    email: String!, 
+                    password: String!, 
+                    mobile_number: String!, 
+                    country: String!
+                ) {
+                    name
+                    email
+                    country
+                }`
+            const userCount = User.length;
+            tester.graphql(true, mutation, { input: {
+                name: 'Daniel Moses',
+                email: 'mosesdaniel@yahoo.com',
+                password: '1234567890',
+                mobile_number: '2653876453',
+                country: 'Nigeria'
+            }}).then(result => {
+                expect(User.length).to.be.eq(userCount)
+            })
+            .catch(err => console.log(err))
+    })
 
     //Test Login mutation (Doesn't allow unverified users to login)
+    // it ('login mutation does not allow unverified users log in', () => {
+    //     const mutation = `
+    //             mutation signIn(
+    //                 email: String!,
+    //                 password: String!
+    //             ) {
+    //                 token
+    //                 user
+    //             }`
+    //         const user = 
+    // })
 
     //Test Get users query that it fetches all users from the db.
-    it ('returns all Users', (done) => {
-        request(app).post('/graphql')
-        .send({ query: '{ getUsers { name, email }}' })
-        .expect(200)
-        .end((err, res) => {
-            if (err) return done(err);
-            res.body.user.should.have.lengthOf(1);
+    it ('Query for fetching all users works as expected', () => {
+        const validQuery = `
+        {
+            getUsers {
+                name
+            }
+        }`
+
+        tester.test(true, validQuery, {
+            user: User
         })
     })
 })
