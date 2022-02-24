@@ -1,4 +1,5 @@
 const { chai, expect } = require('chai');
+const assert = require('assert');
 const { describe, it } = require('mocha');
 const EasyGraphQLTester = require('easygraphql-tester');
 const User = require('../models/User');
@@ -41,17 +42,33 @@ describe('User Tests', () => {
     })
 
     //Test Login mutation (Doesn't allow unverified users to login)
-    // it ('login mutation does not allow unverified users log in', () => {
-    //     const mutation = `
-    //             mutation signIn(
-    //                 email: String!,
-    //                 password: String!
-    //             ) {
-    //                 token
-    //                 user
-    //             }`
-    //         const user = 
-    // })
+    it ('login mutation does not allow unverified users log in', async () => {
+        const mutation = `
+                mutation signIn(
+                    email: String!,
+                    password: String!
+                ) {
+                    token
+                    user
+                }`
+
+        let user = new User({
+            name: 'Niel',
+            email: 'mosesdaniel98@yahoo.com',
+            password: '1234567890',
+            mobile_number: '08148817755',
+            country: 'Nigeria'
+        });
+        user.save(() => {
+            tester.graphql(true, mutation, { input: {
+                email: 'mosesdaniel98@yahoo.com',
+                password: '1234567890'
+            }}).then(result => {
+                assert(false);
+            })
+            .then(err => console.log(err))
+        })
+    })
 
     //Test Get users query that it fetches all users from the db.
     it ('Query for fetching all users works as expected', () => {
