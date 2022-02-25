@@ -45,7 +45,7 @@ const main = async () => {
             if (!authToken) {
                 return res.sendFile(path.join(__dirname, '/utils/verification-success.html'));
             }
-            console.log('Auth-token: ', authToken);
+            
             let token = await Token.findOne({ token: authToken}); //req.params.token
             if (!token) {
                 return res.sendFile(path.join(__dirname, '/utils/link-expired.html'));
