@@ -1,5 +1,5 @@
 const express = require('express');
-const colors = require('colors');
+require('colors');
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs } = require('./schema/TypeDefs');
 const { resolvers } = require('./schema/Resolvers');
