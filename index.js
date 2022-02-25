@@ -1,5 +1,5 @@
 const express = require('express');
-require('colors');
+// require('colors');
 const { ApolloServer } = require('apollo-server-express');
 const { typeDefs } = require('./schema/TypeDefs');
 const { resolvers } = require('./schema/Resolvers');
@@ -68,7 +68,7 @@ const main = async () => {
     });
 
     app.listen(PORT, () => {
-        console.log(`Server is running on ${PORT}${server.graphqlPath}`.italic.blue);
+        console.log(`Server is running on ${PORT}${server.graphqlPath}`);
     });
 }
 

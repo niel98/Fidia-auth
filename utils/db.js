@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const colors = require('colors');
+// const colors = require('colors');
 
 const connectDB = async () => {
     try {
@@ -10,7 +10,7 @@ const connectDB = async () => {
             serverSelectionTimeoutMS: 5000
         });
 
-        console.log('MongoDB connected...'.yellow.underline);
+        console.log('MongoDB connected...');
     } catch (err) {
         console.log(err.message);
     }
